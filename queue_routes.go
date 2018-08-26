@@ -22,9 +22,9 @@ func applyQueueRoutes(r *mux.Router) {
 
 func listQueues(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	queues := getQueues()
+	queues, err := getQueues()
 	response := QueueResponse{
-		Error: "",
+		Error: err,
 		Data:  queues,
 	}
 	json.NewEncoder(w).Encode(response)
@@ -32,11 +32,31 @@ func listQueues(w http.ResponseWriter, r *http.Request) {
 
 func addQueue(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	queue, err := parseBody(r)
+	if err == "" {
+		queue, err = insertQueue(queue)
+	}
 	response := QueueResponse{
-		Error: "",
-		Data:  []Queue{mockQueue()},
+		Error: err,
+		Data:  []Queue{queue},
 	}
 	json.NewEncoder(w).Encode(response)
+}
+
+func parseBody(r *http.Request) (Queue, string) {
+	var queue Queue
+	if r.Body == nil {
+		return queue, "Ivalid request body"
+	} else {
+		err := json.NewDecoder(r.Body).Decode(&queue)
+		if err != nil {
+			return queue, "Ivalid queue json"
+		} else {
+			return queue, ""
+		}
+	}
+
 }
 
 func deleteQueue(w http.ResponseWriter, r *http.Request) {

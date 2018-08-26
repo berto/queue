@@ -3,15 +3,15 @@ package main
 import "strconv"
 
 type Queue struct {
-	ID           int    `json:"id"`
-	Name         string `json:"name"`
-	Location     string `json:"location"`
-	Question     string `json:"question"`
-	Googled      bool   `json:"googled"`
-	AskedStudent bool   `json:"askedStudent"`
-	HasDebugged  bool   `json:"hasDebugged"`
-	Contacted    bool   `json:"contacted"`
-	Completed    bool   `json:"completed"`
+	ID           int    `db:"id" json:"id"`
+	Name         string `db:"name" json:"name"`
+	Location     string `db:"location" json:"location"`
+	Question     string `db:"question" json:"question"`
+	Googled      bool   `db:"googled" json:"googled"`
+	AskedStudent bool   `db:"asked_student" json:"askedStudent"`
+	HasDebugged  bool   `db:"has_debugged" json:"hasDebugged"`
+	Contacted    bool   `db:"contacted" json:"contacted"`
+	Completed    bool   `db:"completed" json:"completed"`
 }
 
 type QueueResponse struct {

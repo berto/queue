@@ -1,13 +1,13 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 )
 
@@ -29,79 +29,61 @@ func init() {
 	dbURL = DB_USERNAME + ":" + DB_PASSWORD + DB_HOST + "/" + DB_NAME
 }
 
-func addQueue(q Queue) Queue {
-	db, err := sql.Open("mysql", dbURL)
+func insertQueue(q Queue) (Queue, string) {
+	db, err := sqlx.Connect("mysql", dbURL)
 	defer db.Close()
 
-	stmtIns, err := db.Prepare("INSERT INTO queue VALUES( ?, ?, ?, ?, ?, ?, ?, ? )")
-	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
-	}
-	defer stmtIns.Close() //
 	if err != nil {
 		fmt.Println("Failed to connect", err)
-		return nil
+		return q, "Failed to connect"
 	}
+
+	defer db.Close()
+
+	tx := db.MustBegin()
+
+	result, err := tx.NamedExec(
+		`INSERT INTO queue (name, location, question, googled, asked_student, has_debugged, contacted, completed) 
+		VALUES (:name, :location, :question, :googled, :asked_student, :has_debugged, :contacted, :completed)`,
+		q,
+	)
+	if err != nil {
+		fmt.Println("Failed to insert", err)
+		return q, "Failed to insert"
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		fmt.Println("Failed to commit transaction", err)
+		return q, "Failed to commit transaction"
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		fmt.Println("Failed to get id", err)
+		return q, "Failed to get id"
+	}
+
+	q.ID = int(id)
+	return q, ""
 }
 
-func getQueues() (queues []Queue) {
-	db, err := sql.Open("mysql", dbURL)
+func getQueues() ([]Queue, string) {
+	var queues []Queue
+	db, err := sqlx.Connect("mysql", dbURL)
 	defer db.Close()
+
 	if err != nil {
 		fmt.Println("Failed to connect", err)
-		return
+		return queues, "Failed to connect"
 	}
 
-	rows, err := db.Query("SELECT * FROM queue")
+	err = db.Select(&queues, "SELECT * FROM queue")
 	if err != nil {
-		fmt.Println("Failed to run query", err)
-		return
+		fmt.Println("Failed to query all", err)
+		return queues, "Failed to query all"
 	}
-
-	cols, err := rows.Columns()
-	if err != nil {
-		fmt.Println("Failed to get columns", err)
-		return
-	}
-
-	rawResult := make([][]byte, len(cols))
-	result := make([]string, len(cols))
-
-	dest := make([]interface{}, len(cols))
-	for i, _ := range rawResult {
-		dest[i] = &rawResult[i]
-	}
-
-	for rows.Next() {
-		err = rows.Scan(dest...)
-		if err != nil {
-			fmt.Println("Failed to scan row", err)
-			return
-		}
-
-		for i, raw := range rawResult {
-			if raw == nil {
-				result[i] = "\\N"
-			} else {
-				result[i] = string(raw)
-			}
-		}
-
-		id, _ := strconv.Atoi(result[0])
-		queue := Queue{
-			id,
-			result[1],
-			result[2],
-			result[3],
-			stringToBool(result[4]),
-			stringToBool(result[5]),
-			stringToBool(result[6]),
-			stringToBool(result[7]),
-			stringToBool(result[8]),
-		}
-		queues = append(queues, queue)
-	}
-	return
+	return queues, ""
 }
 
 func stringToBool(s string) bool {

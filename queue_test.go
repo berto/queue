@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,13 +19,17 @@ func TestQueueRoutes(t *testing.T) {
 		payload []byte
 	}{
 		{"get queues", "GET", "/queue", nil},
-		{"post new queue", "POST", "/queue", []byte(`{"id": "1"}`)},
+		{"post new queue", "POST", "/queue", []byte(`{"name": "test"}`)},
 		{"delete queue", "DELETE", "/queue/1", nil},
 	}
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			req, err := http.NewRequest(tc.method, tc.uri, nil)
+			var payload io.Reader
+			if tc.payload != nil {
+				payload = bytes.NewBuffer(tc.payload)
+			}
+			req, err := http.NewRequest(tc.method, tc.uri, payload)
 			if err != nil {
 				t.Errorf("Get failed with error %d.", err)
 			}
