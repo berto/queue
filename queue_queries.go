@@ -27,17 +27,17 @@ func init() {
 	DB_HOST = os.Getenv("DB_HOST")
 	DB_USERNAME = os.Getenv("DB_USERNAME")
 	DB_PASSWORD = os.Getenv("DB_PASSWORD")
-	dbURL = DB_USERNAME + ":" + DB_PASSWORD + DB_HOST + "/" + DB_NAME
+	dbURL = DB_USERNAME + ":" + DB_PASSWORD + "@tcp(" + DB_HOST + ":3306)" + "/" + DB_NAME
 }
 
 func insertQueue(q Queue) (Queue, string) {
 	db, err := sqlx.Connect("mysql", dbURL)
-	defer db.Close()
 
 	if err != nil {
 		fmt.Println("Failed to connect", err)
 		return q, "Failed to connect"
 	}
+	defer db.Close()
 
 	tx := db.MustBegin()
 
@@ -71,11 +71,11 @@ func completeQueue(id int) (Queue, string) {
 	var queue Queue
 
 	db, err := sqlx.Connect("mysql", dbURL)
-	defer db.Close()
 	if err != nil {
 		fmt.Println("Failed to connect", err)
 		return queue, "Failed to connect"
 	}
+	defer db.Close()
 
 	err = db.Get(&queue, "SELECT * FROM queue WHERE id=?", strconv.Itoa(id))
 	if queue.ID != id || err != nil {
@@ -111,12 +111,12 @@ func completeQueue(id int) (Queue, string) {
 func getQueues() ([]Queue, string) {
 	var queues []Queue
 	db, err := sqlx.Connect("mysql", dbURL)
-	defer db.Close()
 
 	if err != nil {
 		fmt.Println("Failed to connect", err)
 		return queues, "Failed to connect"
 	}
+	defer db.Close()
 
 	err = db.Select(&queues, "SELECT * FROM queue")
 	if err != nil {
