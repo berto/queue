@@ -22,9 +22,10 @@ func applyQueueRoutes(r *mux.Router) {
 
 func listQueues(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	queues := getQueues()
 	response := QueueResponse{
 		Error: "",
-		Data:  mockQueues(),
+		Data:  queues,
 	}
 	json.NewEncoder(w).Encode(response)
 }
