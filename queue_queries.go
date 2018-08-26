@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -38,8 +39,6 @@ func insertQueue(q Queue) (Queue, string) {
 		return q, "Failed to connect"
 	}
 
-	defer db.Close()
-
 	tx := db.MustBegin()
 
 	result, err := tx.NamedExec(
@@ -66,6 +65,47 @@ func insertQueue(q Queue) (Queue, string) {
 
 	q.ID = int(id)
 	return q, ""
+}
+
+func completeQueue(id int) (Queue, string) {
+	var queue Queue
+
+	db, err := sqlx.Connect("mysql", dbURL)
+	defer db.Close()
+	if err != nil {
+		fmt.Println("Failed to connect", err)
+		return queue, "Failed to connect"
+	}
+
+	err = db.Get(&queue, "SELECT * FROM queue WHERE id=?", strconv.Itoa(id))
+	if queue.ID != id || err != nil {
+		fmt.Println("Failed to select queue", err)
+		return queue, "Failed to select queue"
+	}
+
+	tx := db.MustBegin()
+
+	result := tx.MustExec("UPDATE queue SET completed=true WHERE id=?", strconv.Itoa(id))
+	rows, err := result.RowsAffected()
+
+	if rows < 1 {
+		fmt.Println("Failed to delete: record already completed")
+		return queue, "Failed to delete: record already completed"
+	}
+
+	if err != nil {
+		fmt.Println("Failed to delete", err)
+		return queue, "Failed to delete"
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		fmt.Println("Failed to commit transaction", err)
+		return queue, "Failed to commit transaction"
+	}
+
+	queue.Completed = true
+	return queue, ""
 }
 
 func getQueues() ([]Queue, string) {

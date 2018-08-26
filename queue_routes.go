@@ -68,9 +68,7 @@ func deleteQueue(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		errorMessage = "Invalid ID"
 	} else {
-		queue = mockQueue()
-		queue.ID = id
-		queue.Completed = true
+		queue, errorMessage = completeQueue(id)
 	}
 	response := QueueResponse{
 		Error: errorMessage,
