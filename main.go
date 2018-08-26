@@ -8,6 +8,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -20,8 +22,9 @@ func main() {
 
 	r := createRouter()
 
+	handler := applyCorsMiddleware(r)
 	log.Printf("server running on port: %v", port)
-	http.ListenAndServe(":"+port, r)
+	http.ListenAndServe(":"+port, handler)
 }
 
 func createRouter() *mux.Router {
@@ -31,6 +34,15 @@ func createRouter() *mux.Router {
 	applyQueueRoutes(r)
 
 	return r
+}
+
+func applyCorsMiddleware(r *mux.Router) http.Handler {
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "DELETE"},
+	})
+	handler := c.Handler(r)
+	return handler
 }
 
 func pong(w http.ResponseWriter, r *http.Request) {
