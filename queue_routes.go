@@ -17,6 +17,8 @@ func applyQueueRoutes(r *mux.Router) {
 	s.HandleFunc("/", addQueue).Methods("POST")
 	r.HandleFunc("/queue", addQueue).Methods("POST")
 
+	s.HandleFunc("/{id}", updateQueue).Methods("PATCH")
+
 	s.HandleFunc("/{id}", deleteQueue).Methods("DELETE")
 }
 
@@ -44,19 +46,22 @@ func addQueue(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func parseBody(r *http.Request) (Queue, string) {
+func updateQueue(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	var errorMessage string
 	var queue Queue
-	if r.Body == nil {
-		return queue, "Ivalid request body"
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		errorMessage = "Invalid ID"
 	} else {
-		err := json.NewDecoder(r.Body).Decode(&queue)
-		if err != nil {
-			return queue, "Ivalid queue json"
-		} else {
-			return queue, ""
-		}
+		queue, errorMessage = contactQueue(id)
 	}
-
+	response := QueueResponse{
+		Error: errorMessage,
+		Data:  []Queue{queue},
+	}
+	json.NewEncoder(w).Encode(response)
 }
 
 func deleteQueue(w http.ResponseWriter, r *http.Request) {
@@ -75,4 +80,19 @@ func deleteQueue(w http.ResponseWriter, r *http.Request) {
 		Data:  []Queue{queue},
 	}
 	json.NewEncoder(w).Encode(response)
+}
+
+func parseBody(r *http.Request) (Queue, string) {
+	var queue Queue
+	if r.Body == nil {
+		return queue, "Ivalid request body"
+	} else {
+		err := json.NewDecoder(r.Body).Decode(&queue)
+		if err != nil {
+			return queue, "Ivalid queue json"
+		} else {
+			return queue, ""
+		}
+	}
+
 }

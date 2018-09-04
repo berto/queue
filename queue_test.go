@@ -6,10 +6,19 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
 func TestQueueRoutes(t *testing.T) {
+	DB_NAME := os.Getenv("DB_TEST_NAME")
+	os.Setenv("DB_NAME", DB_NAME)
+
+	err := cleanDB()
+	if err != "" {
+		t.Errorf("Failed to clean db: %s.", err)
+	}
+
 	r := createRouter()
 
 	tt := []struct {
@@ -20,7 +29,8 @@ func TestQueueRoutes(t *testing.T) {
 	}{
 		{"get queues", "GET", "/queue", nil},
 		{"post new queue", "POST", "/queue", []byte(`{"name": "test"}`)},
-		{"delete queue", "DELETE", "/queue/1", nil},
+		{"update queue contacted status", "PATCH", "/queue/1", nil},
+		{"delete queue by marking as complete", "DELETE", "/queue/1", nil},
 	}
 
 	for _, tc := range tt {
