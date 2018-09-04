@@ -39,7 +39,7 @@ func createRouter() *mux.Router {
 func applyCorsMiddleware(r *mux.Router) http.Handler {
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "DELETE"},
+		AllowedMethods: []string{"GET", "POST", "PATCH", "DELETE"},
 	})
 	handler := c.Handler(r)
 	return handler
