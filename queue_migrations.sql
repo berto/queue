@@ -1,8 +1,8 @@
 CREATE TABLE queue (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    name VARCHAR(30),
+    name VARCHAR(64),
     location VARCHAR(30),
-    question VARCHAR(30),
+    question VARCHAR(512),
     googled VARCHAR(30),
     asked_student BOOLEAN,
     has_debugged BOOLEAN,
