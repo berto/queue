@@ -31,6 +31,7 @@ func createRouter() *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/ping", pong)
+	r.HandleFunc("/ws", wsHandler)
 	applyQueueRoutes(r)
 
 	return r
