@@ -26,6 +26,14 @@
   version = "v1.6.2"
 
 [[projects]]
+  digest = "1:7b5c6e2eeaa9ae5907c391a91c132abfd5c9e8a784a341b5625e750c67e6825d"
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
+  version = "v1.4.0"
+
+[[projects]]
   branch = "master"
   digest = "1:7654989089e5bd5b6734ec3be8b695e87d3f1f8d95620b343fd7d3995a5b60d7"
   name = "github.com/jmoiron/sqlx"
@@ -66,6 +74,7 @@
   input-imports = [
     "github.com/go-sql-driver/mysql",
     "github.com/gorilla/mux",
+    "github.com/gorilla/websocket",
     "github.com/jmoiron/sqlx",
     "github.com/joho/godotenv",
     "github.com/rs/cors",
