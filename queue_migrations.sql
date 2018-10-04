@@ -6,6 +6,8 @@ CREATE TABLE queue (
     googled VARCHAR(30),
     asked_student BOOLEAN,
     has_debugged BOOLEAN,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    completed_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     contacted BOOLEAN,
     completed BOOLEAN,
     CONSTRAINT queue_pk PRIMARY KEY (id)

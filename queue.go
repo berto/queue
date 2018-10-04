@@ -10,6 +10,8 @@ type Queue struct {
 	Googled      bool   `db:"googled" json:"googled"`
 	AskedStudent bool   `db:"asked_student" json:"askedStudent"`
 	HasDebugged  bool   `db:"has_debugged" json:"hasDebugged"`
+	CreatedAt    date   `db:"created_at" json:"createdAt"`
+	CompletedAt  date   `db:"completed_at" json:"completedAt"`
 	Contacted    bool   `db:"contacted" json:"contacted"`
 	Completed    bool   `db:"completed" json:"completed"`
 }
