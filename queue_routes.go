@@ -86,13 +86,10 @@ func parseBody(r *http.Request) (Queue, string) {
 	var queue Queue
 	if r.Body == nil {
 		return queue, "Ivalid request body"
-	} else {
-		err := json.NewDecoder(r.Body).Decode(&queue)
-		if err != nil {
-			return queue, "Ivalid queue json"
-		} else {
-			return queue, ""
-		}
 	}
-
+	err := json.NewDecoder(r.Body).Decode(&queue)
+	if err != nil {
+		return queue, "Ivalid queue json"
+	}
+	return queue, ""
 }

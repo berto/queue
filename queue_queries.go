@@ -12,18 +12,18 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var DB_HOST string
-var DB_USERNAME string
-var DB_PASSWORD string
+var dbHost string
+var dbUsername string
+var dbPassword string
 
 func init() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Println(err)
 	}
-	DB_HOST = os.Getenv("DB_HOST")
-	DB_USERNAME = os.Getenv("DB_USERNAME")
-	DB_PASSWORD = os.Getenv("DB_PASSWORD")
+	dbHost = os.Getenv("DB_HOST")
+	dbUsername = os.Getenv("DB_USERNAME")
+	dbPassword = os.Getenv("DB_PASSWORD")
 }
 
 func insertQueue(q Queue) (Queue, string) {
@@ -183,14 +183,13 @@ func cleanDB() string {
 }
 
 func getDBURL() string {
-	DB_NAME := os.Getenv("DB_NAME")
-	return DB_USERNAME + ":" + DB_PASSWORD + "@tcp(" + DB_HOST + ":3306)" + "/" + DB_NAME
+	dbName := os.Getenv("DB_NAME")
+	return dbUsername + ":" + dbPassword + "@tcp(" + dbHost + ":3306)" + "/" + dbName + "?parseTime=true"
 }
 
 func stringToBool(s string) bool {
 	if s == "0" || s == "" {
 		return false
-	} else {
-		return true
 	}
+	return true
 }

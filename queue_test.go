@@ -11,8 +11,8 @@ import (
 )
 
 func TestQueueRoutes(t *testing.T) {
-	DB_NAME := os.Getenv("DB_TEST_NAME")
-	os.Setenv("DB_NAME", DB_NAME)
+	dbName := os.Getenv("DB_TEST_NAME")
+	os.Setenv("DB_NAME", dbName)
 
 	err := cleanDB()
 	if err != "" {
